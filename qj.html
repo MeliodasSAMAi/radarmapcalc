@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Vue 测试实例 - 菜鸟教程(runoob.com)</title>
+    <script src="./vue.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <input type="number" v-model="x" @blur="x = null" />{{x-76+12}}
+      <input type="number" v-model="y" @blur="y = null" />{{y-517+12}}
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          x: null,
+          y: null,
+        },
+      });
+    </script>
+  </body>
+</html>

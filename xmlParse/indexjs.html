@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+<script>
+    let childs = new Map();
+    let xmlcontent;
+    window.onload = function () {
+        fetch('./btnGroups.xml').then(res => res.text()).then(res => {
+            // console.log(res);
+            xmlcontent = document.createElement('div');
+            xmlcontent.innerHTML = res;
+            document.body.innerHTML+=res;
+        }).then(() => {
+            let eles = xmlcontent.querySelectorAll('element');
+            eles.forEach((ele,i)=>{
+                // console.log(ele.childElementCount,ele.querySelector('name').innerHTML);
+                if(ele.childElementCount === 7){
+                    let name1 = ele.querySelector('name').innerHTML;
+                    if(!childs.has(name1)){
+                        childs.set(name1,[]);
+                    }
+                }else{
+                    let name1 = ele.querySelector('parent').innerHTML;
+                    if(childs.has(name1)){
+                        childs.get(name1).push({
+                            name:ele.querySelector('name').innerHTML,
+                            src:ele.querySelector('adr').innerHTML,
+                            pos:[Number(ele.querySelector('pos_x').innerHTML),Number(ele.querySelector('pos_y').innerHTML)]
+                        });
+                    }else{
+                        console.log(i,'无法归属');
+                    }
+                }
+            })
+        }).then(()=>{
+            console.log(childs);
+            let qwjt = childs.get('qwjt');
+            qwjt.forEach((item,i)=>{
+
+            })
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+</script>
+</html>

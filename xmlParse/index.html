@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        zplus {
+            display: block;
+        }
+
+        element {
+            box-sizing: border-box;
+            border: 1px solid red;
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        element>UEID{
+            display: block;
+            visibility: hidden;
+        }
+
+        element>type::before{
+            content:'type:';
+            color:lightblue;
+        }
+
+        element>type{
+            display: block;
+        }
+
+        element>name::before{
+            content:'name:';
+            color:lightblue;
+        }
+
+        element>name{
+            display: block;
+        }
+
+        element>parent::before{
+            content:'parent:';
+            color:lightblue;
+        }
+
+        element>parent{
+            display: block;
+        }
+
+        element>adr::before{
+            content:'adr:';
+            color:lightblue;
+        }
+
+        element>adr{
+            display: block;
+        }
+
+        element>pos_x::before{
+            content:'pos_x:';
+            color:lightblue;
+        }
+
+        element>pos_x{
+            display: block;
+        }
+
+        element>pos_y::before{
+            content:'pos_y:';
+            color:lightblue;
+        }
+
+        element>pos_y{
+            display: block;
+        }
+
+        element>event{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+<script>
+    let childs = new Map();
+    window.onload = function () {
+        fetch('./btnGroups.xml').then(res => res.text()).then(res => {
+            // console.log(res);
+            document.body.innerHTML+=res;
+        }).then(() => {
+            let eles = document.querySelectorAll('element');
+            eles.forEach((ele,i)=>{
+                console.log(ele.childElementCount,ele.querySelector('name').innerHTML);
+                if(ele.childElementCount === 7){
+                    let name1 = ele.querySelector('name').innerHTML;
+                    if(!childs.has(name1)){
+                        childs.set(name1,[]);
+                    }
+                }else{
+                    let name1 = ele.querySelector('parent').innerHTML;
+                    if(childs.has(name1) && !ele.querySelector('name').innerHTML.includes('_h')){
+                        childs.get(name1).push({
+                            name:ele.querySelector('name').innerHTML,
+                            // src:ele.querySelector('adr').innerHTML,
+                            pos_x:Number(ele.querySelector('pos_x').innerHTML),
+                            pos_y:Number(ele.querySelector('pos_y').innerHTML)
+                            // pos:[Number(ele.querySelector('pos_x').innerHTML),Number(ele.querySelector('pos_y').innerHTML)]
+                        });
+                    }else{
+                        console.log(i,'无法归属');
+                    }
+                }
+            })
+        }).then(res=>{
+            console.log(JSON.stringify(childs.get('overview')));
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+</script>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Vue 测试实例 - 菜鸟教程(runoob.com)</title>
+    <script src="./loadXmlDoc.js"></script>
+    <script src="./vue.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <!-- 标注补偿 -->
+      <sub>标注补偿:</sub>
+      <span>{{ofx}},{{ofy}}</span>
+      <input
+        id="pointImg"
+        type="file"
+        @change="onupload"
+        accept="image/png, image/jpeg"
+      />
+      <hr />
+      <sub>xml文件:</sub>
+      <input id="search" type="text" v-model="search" />
+      <input id="btnInfo" type="file" accept="text/xml" @change="xmlupload" />
+      <ul>
+        <li v-for="(item,i) in xmlList" :key="i">
+          <div>
+            <h5>{{item.name}}</h5>
+            <button @click="copy(item.resX)">{{item.posX}},{{item.resX}}</button><button  @click="copy(item.resY)">{{item.posY}},{{item.resY}}</button>
+          </div>
+        </li>
+      </ul>
+      <button @click="exportJson">导出</button>
+      <hr />
+      <input type="number" v-model="x" @blur="x = null" />{{x-76+ofx}}
+      <input type="number" v-model="y" @blur="y = null" />{{y-517+ofy}}
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          x: null,
+          y: null,
+          offx: 0,
+          offy: 0,
+          ofx: 0,
+          ofy: 0,
+          search: "",
+          xmlList: [],
+          filterList: [],
+        },
+        watch: {
+          search(val) {
+            this.filterList = this.xmlList.filter((item) => {
+              return item.parent === val;
+            });
+          },
+        },
+        methods: {
+          exportJson(){
+            let exportList = this.xmlList.filter(item=>{
+              delete item.posX;
+              delete item.posY;
+              return true;
+            })
+            // console.log(JSON.stringify(exportList));
+             this.savefiles(JSON.stringify(exportList),`${this.search}.json`);
+          },
+          /**
+ * @param data 需要保存的内容
+ * @param name 保存的文件名 
+ */
+savefiles(data, name) 
+{
+//Blob为js的一个对象，表示一个不可变的, 原始数据的类似文件对象，这是创建文件中不可缺少的！
+  var urlObject = window.URL || window.webkitURL || window;
+  var export_blob = new Blob([data]);
+  var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+  save_link.href = urlObject.createObjectURL(export_blob);
+  save_link.download = name;
+  save_link.click();
+},
+          copy(item) {
+            var input1 = document.createElement("input"); // 直接构建input
+            input1.value = `${item}`; // 设置内容
+            document.body.appendChild(input1);
+            input1.select(); // 选择实例内容
+            document.execCommand("Copy"); // 执行复制
+            document.body.removeChild(input1); // 删除临时实例
+            // 内容已复制到粘贴板上
+          },
+          onupload() {
+            //获取上传文件的信息
+            let upfile = document.getElementById("pointImg").files[0];
+            //生成文件url
+            let sr = window.URL.createObjectURL(upfile);
+            let nImg = new Image();
+            nImg.onload = (e) => {
+              this.ofx = Math.round(e.target.naturalWidth / 2);
+              this.ofy = Math.round(e.target.naturalHeight / 2);
+            };
+            nImg.src = sr;
+          },
+          convertX(num){
+            return num - this.offx + this.ofx;
+          },
+          convertY(num){
+            return num - this.offy + this.ofy;
+          },
+          xmlupload() {
+            let upfile = document.getElementById("btnInfo").files[0];
+            //生成文件url
+            let sr = window.URL.createObjectURL(upfile);
+            fetch(sr)
+              .then((res) => res.text())
+              .then((res) => {
+                let xmlDoc = loadXMLString(res);
+                let xmls = xmlDoc.getElementsByTagName("element");
+                // console.log(xmls);
+                for (let index = 0; index < xmls.length; index++) {
+                  const element = xmls[index];
+                  let parentName =
+                    element.getElementsByTagName("parent")[0].childNodes[0]
+                      .nodeValue;
+                      let name =
+                    element.getElementsByTagName("name")[0].childNodes[0]
+                      .nodeValue;
+                      if(parentName === this.search && (name.includes("pic_") || name.includes("but_bg"))){
+                      this.offx = element.getElementsByTagName("pos_x")[0].childNodes[0].nodeValue;
+                      this.offy = element.getElementsByTagName("pos_y")[0].childNodes[0].nodeValue;
+                    }
+                  if (parentName === this.search) {
+                    if(parentName === this.search && name.includes("pic"))continue;
+                    this.xmlList.push({
+                      name: element.getElementsByTagName("name")[0]
+                        .childNodes[0].nodeValue,
+                      posX: element.getElementsByTagName("pos_x")[0]
+                        .childNodes[0].nodeValue,
+                      posY: element.getElementsByTagName("pos_y")[0]
+                        .childNodes[0].nodeValue,
+                        resX:this.convertX(element.getElementsByTagName("pos_x")[0]
+                        .childNodes[0].nodeValue),
+                        resY:this.convertY(element.getElementsByTagName("pos_y")[0]
+                        .childNodes[0].nodeValue)
+                    });
+                  }
+                }
+              });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

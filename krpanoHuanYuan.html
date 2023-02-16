@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Vue 测试实例 - 菜鸟教程(runoob.com)</title>
+    <script src="./vue.min.js"></script>
+    <script src="./clipboard.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <input type="number" v-model="x" />
+      <span id="xCopy" style="color: lightblue" @click="xCopy">{{originX.toFixed(3)}}</span>
+
+      <div style="width: 100%; height: 10px"></div>
+      <br />
+
+      <input type="number" v-model="y" />
+      <span style="color: lightblue">{{originY.toFixed(3)}}</span>
+      <button class="btn" :data-clipboard-text="originY.toFixed(3)" @click="y = null">复制</button>
+      <br>
+      <button @click="clear">还原</button>
+      <textarea name="" id="" cols="30" rows="10"></textarea>
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          x: null,
+          y: null,
+        },
+        computed: {
+          originX() {
+            return this.huanYuan(this.x);
+          },
+          originY() {
+            return this.huanYuan(this.y);
+          },
+        },
+        mounted() {
+          
+        },
+        methods: {
+          huanYuan(num) {
+            return (Number(num) + 666) / 6;
+          },
+          xCopy(){
+            this.clipboard = new Clipboard('.btn');
+          },
+          yCopy(){
+
+          },
+          clear(){
+            this.x = null;
+            this.y = null;
+          }
+        },
+      });
+    </script>
+  </body>
+</html>

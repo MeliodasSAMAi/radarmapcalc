@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Vue 测试实例 - 菜鸟教程(runoob.com)</title>
+    <script src="./loadXmlDoc.js"></script>
+    <script src="./vue.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <sub>xml文件:</sub>
+      <input id="search" type="text" v-model="search" />
+      <input id="btnInfo" type="file" accept="text/xml" @change="xmlupload" />
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          x: null,
+          y: null,
+          offx: 0,
+          offy: 0,
+          search: "",
+          xmlList: [],
+          filterList: [],
+        },
+        methods: {
+          xmlupload() {
+            let upfile = document.getElementById("btnInfo").files[0];
+            //生成文件url
+            let sr = window.URL.createObjectURL(upfile);
+            fetch(sr)
+              .then((res) => res.text())
+              .then((res) => {
+                let xmlDoc = loadXMLString(res);
+                let xmls = xmlDoc.getElementsByTagName("element");
+                // console.log(xmls);
+                for (let index = 0; index < xmls.length; index++) {
+                  const element = xmls[index];
+                  let parentName =
+                    element.getElementsByTagName("parent")[0].childNodes[0]
+                      .nodeValue;
+                      let name =
+                    element.getElementsByTagName("name")[0].childNodes[0]
+                      .nodeValue;
+                      if(parentName === this.search && name.includes("pic_")){
+                      this.offx = element.getElementsByTagName("pos_x")[0].childNodes[0].nodeValue;
+                      this.offy = element.getElementsByTagName("pos_y")[0].childNodes[0].nodeValue;
+                    }
+                  if (parentName === this.search) {
+                    if(parentName === this.search && name.includes("pic"))continue;
+                    this.xmlList.push({
+                      name: element.getElementsByTagName("name")[0]
+                        .childNodes[0].nodeValue,
+                      posX: element.getElementsByTagName("pos_x")[0]
+                        .childNodes[0].nodeValue,
+                      posY: element.getElementsByTagName("pos_y")[0]
+                        .childNodes[0].nodeValue,
+                        resX:this.convertX(element.getElementsByTagName("pos_x")[0]
+                        .childNodes[0].nodeValue),
+                        resY:this.convertY(element.getElementsByTagName("pos_y")[0]
+                        .childNodes[0].nodeValue)
+                    });
+                  }
+                }
+              });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
